@@ -1,0 +1,356 @@
+interface CalculateFee {
+    public void Calculate();
+    public int getFee();
+}
+
+class WaterUsage {
+    private int WaterVolume;
+    WaterUsage(WaterData data, int month){
+        WaterVolume = data.getMonthlyWaterVolume(month);
+    }
+    public void setWaterVolume(WaterData data, int month){
+        WaterVolume = data.getMonthlyWaterVolume(month);
+    }
+    public int getWaterVolume() {
+        return WaterVolume;
+    }
+}
+
+class BasicFee extends WaterUsage implements CalculateFee {
+    private int fee;
+    BasicFee(WaterData data, int month){
+        super(data, month);
+    }
+    public void Calculate() {
+        int volume = getWaterVolume();
+        fee = volume * 3;
+    }
+    public int getFee() {
+        return fee;
+    }
+}
+
+class WaterCharges extends WaterUsage implements CalculateFee {
+    private int fee;
+    WaterCharges(WaterData data, int month){
+        super(data, month);
+    }
+    public void Calculate() {
+        int volume = getWaterVolume();
+        int pricePerVolume;
+        if (volume < 11)
+            pricePerVolume = 7;
+        else if (volume < 21)
+            pricePerVolume = 8;
+        else
+            pricePerVolume = 9;
+        fee = volume * pricePerVolume;
+    }
+    public int getFee() {
+        return fee;
+    }
+}
+
+class DrainWaterFee extends WaterUsage implements CalculateFee {
+    private int fee;
+    DrainWaterFee(WaterData data, int month){
+        super(data, month);
+    }
+    public void Calculate() {
+        int volume = getWaterVolume();
+        fee = volume * 2;
+    }
+    public int getFee() {
+        return fee;
+    }
+}
+
+class SewerFee extends WaterUsage implements CalculateFee {
+    private int fee;
+    SewerFee(WaterData data, int month){
+        super(data, month);
+    }
+    public void Calculate() {
+        int volume = getWaterVolume();
+        fee = volume * 1;
+    }
+    public int getFee() {
+        return fee;
+    }
+}
+
+class User {
+    private String name;
+    private String emailaddress;
+    private int month;
+    private boolean pay;
+ User(){}
+    User(String iname, String iemailaddress, int imonth, boolean ipay){
+        name = iname;
+        emailaddress = iemailaddress;
+        month = imonth;
+        pay=ipay;
+    }
+    public void setname(String iname){
+        name = iname;
+    }
+    public void setemailaddress(String iemailaddress){
+        emailaddress = iemailaddress;
+    }
+    public void setmonth(int imonth){
+        month = imonth;
+    }
+    public void setpay(boolean ipay){
+        pay = ipay;
+    }
+    public String getemailaddress(){
+        return emailaddress;
+    }
+    public String get(){
+        return name;
+    }
+    public int getmonth(){
+        return month;
+    }
+    public boolean getpay(){
+        return pay;
+    }
+    public void searchFee(WaterData data){
+        System.out.println();
+        System.out.print("User name: ");
+        System.out.println(name);
+        System.out.print("Billing month: ");
+        System.out.println(month);
+        System.out.print("Fee: ");
+        System.out.println(data.getMonthlyWaterFee(month, name));
+        
+    }
+    public void searchTax(WaterData data){
+        System.out.print("Sales Tax : ");
+        System.out.println(data.getMonthlySalesTax(month, name));
+        //System.out.println();
+    }
+    public void whetherpay(WaterData data){
+        if(pay==true){
+            System.out.print("You have paid for ");
+            System.out.println(data.getMonthlyWaterFee(month, name)+data.getMonthlySalesTax(month,name));
+            System.out.println();
+        }
+        else{
+            System.out.print("You haven't paid yet. You need to pay ");
+            System.out.println(data.getMonthlyWaterFee(month, name)+data.getMonthlySalesTax(month,name));
+            //System.out.println();
+        }
+        
+    }
+}
+
+class TotalWaterFee {
+    private int fee;
+    public void calculate(WaterCharges wc, BasicFee bf, DrainWaterFee dwf, SewerFee sf) {
+        fee = wc.getFee() + bf.getFee() + dwf.getFee() + sf.getFee();
+    }
+    public int getFee() {
+        return fee;
+    }
+    public void OverdueNotice(User user){
+        if (user.getpay()==false){
+            System.out.println("Overdue notice is sent to your email address "+user.getemailaddress()+" succesfully.");
+            System.out.print("Notice: Your bill is due on month ");
+            System.out.println(user.getmonth()+2);
+            System.out.println();
+        }
+    }
+    
+}
+
+class SalesTax {
+    private int tax;
+    public int getSalesTax() {
+        return tax;
+    }
+    public void calculate(WaterCharges wc, BasicFee bf){
+        tax = (wc.getFee() + bf.getFee()) / 20;
+    }
+}
+
+class Datalist{
+    public String name;
+    public int month;
+    public int data;
+    Datalist(String a, int b, int c){
+        name = a;
+        month = b;
+        data = c;
+    }
+}
+
+class WaterData {
+    private Datalist[] MonthlyWaterVolume = new Datalist[1000];
+    private Datalist[] MonthlyWaterFee = new Datalist[1000];
+    private Datalist[] MonthlySalesTax = new Datalist[1000];
+    private int indexVol;
+    private int indexFee;
+    private int indexTax;
+    private String name;
+    WaterData() {
+        indexVol = 0;
+        indexFee = 0;
+        indexTax = 0;
+    }
+    
+    public void setName(String input){
+        name = input;
+    }
+    public void setMonthlyWaterVolume(int month, int volume){
+        Datalist tmp = new Datalist(name, month, volume);
+        MonthlyWaterVolume[indexVol++] = tmp;
+    }
+    public int getMonthlyWaterVolume(int month){
+        int i = 0;
+        while(i <= indexVol){
+            if(MonthlyWaterVolume[i].month == month && MonthlyWaterVolume[i].name == name)
+                return MonthlyWaterVolume[i].data;
+            i++;
+        }
+        return -1;
+    }
+    public void setMonthlyWaterFee(TotalWaterFee twf, int month){
+        Datalist tmp = new Datalist(name, month, twf.getFee());
+        MonthlyWaterFee[indexFee++] = tmp;
+    }
+    public int getMonthlyWaterFee(int month, String iname){
+        int i = 0;
+        while(i <= indexFee){
+            if(MonthlyWaterFee[i].month == month && MonthlyWaterFee[i].name == iname)
+                return MonthlyWaterFee[i].data;
+            i++;
+        }
+        return -1;
+    }
+    public void setMonthlySalesTax(SalesTax st, int month){
+        Datalist tmp = new Datalist(name, month, st.getSalesTax());
+        MonthlySalesTax[indexTax++] = tmp;
+    }
+    public int getMonthlySalesTax(int month, String iname){
+        int i = 0;
+        while(i <= indexTax){
+            if(MonthlySalesTax[i].month == month && MonthlySalesTax[i].name == iname)
+                return MonthlySalesTax[i].data;
+            i++;
+        }
+        return -1;
+    }
+}
+
+public class Main
+{
+ public static void main(String[] args) {
+    //initialize the data list
+    WaterData data = new WaterData();
+    data.setName("Terry");
+    data.setMonthlyWaterVolume(1, 1300);
+    BasicFee basicFee = new BasicFee(data, 1);
+    basicFee.Calculate();
+    WaterCharges waterCharges = new WaterCharges(data, 1);
+    waterCharges.Calculate();
+    DrainWaterFee drainWaterFee = new DrainWaterFee(data, 1);
+    drainWaterFee.Calculate();
+    SewerFee sewerFee = new SewerFee(data, 1);
+    sewerFee.Calculate();
+    TotalWaterFee total = new TotalWaterFee();
+    total.calculate(waterCharges, basicFee, drainWaterFee, sewerFee);
+    data.setMonthlyWaterFee(total, 1);
+  
+    SalesTax s1 = new SalesTax();
+    s1.calculate( waterCharges,basicFee );
+    data.setMonthlySalesTax( s1, 1);
+  
+  
+  
+    for(int i = 2; i < 12; i++){
+        data.setMonthlyWaterVolume(i, i * 1000);
+        basicFee.setWaterVolume(data, i);
+        basicFee.Calculate();
+        waterCharges.setWaterVolume(data, i);
+        waterCharges.Calculate();
+        drainWaterFee.setWaterVolume(data, i);
+        drainWaterFee.Calculate();
+        sewerFee.setWaterVolume(data, i);
+        sewerFee.Calculate();
+        total.calculate(waterCharges, basicFee, drainWaterFee, sewerFee);
+        data.setMonthlyWaterFee(total, i);
+        s1.calculate( waterCharges,basicFee );
+    data.setMonthlySalesTax( s1, i);
+    }
+  
+    data.setName("Jennie");
+    data.setMonthlyWaterVolume(1, 1500);
+    basicFee.setWaterVolume(data, 1);
+    basicFee.Calculate();
+    waterCharges.setWaterVolume(data, 1);
+    waterCharges.Calculate();
+    drainWaterFee.setWaterVolume(data, 1);
+    drainWaterFee.Calculate();
+    sewerFee.setWaterVolume(data, 1);
+    sewerFee.Calculate();
+    total.calculate(waterCharges, basicFee, drainWaterFee, sewerFee);
+    data.setMonthlyWaterFee(total, 1);
+  
+    s1.calculate( waterCharges,basicFee );
+    data.setMonthlySalesTax( s1, 1);
+  
+  
+    data.setMonthlyWaterVolume(7, 3000);
+    basicFee.setWaterVolume(data, 1);
+    basicFee.Calculate();
+    waterCharges.setWaterVolume(data, 7);
+    waterCharges.Calculate();
+    drainWaterFee.setWaterVolume(data, 7);
+    drainWaterFee.Calculate();
+    sewerFee.setWaterVolume(data, 7);
+    sewerFee.Calculate();
+    total.calculate(waterCharges, basicFee, drainWaterFee, sewerFee);
+    data.setMonthlyWaterFee(total, 7);
+  
+    s1.calculate( waterCharges,basicFee );
+    data.setMonthlySalesTax( s1, 7);
+ 
+  
+    User user1 = new User("Terry", "TerryB123040016@gmail.com", 1, false);
+  
+    user1.searchFee(data);
+    user1.searchTax(data);
+    user1.whetherpay(data);
+    total.OverdueNotice(user1);
+    //user1.getpay();
+    user1.setmonth(7);
+    user1.setpay(true);
+    user1.searchFee(data);
+    user1.searchTax(data);
+    user1.whetherpay(data);
+    total.OverdueNotice(user1);
+    //user1.getpay();
+    //user1.setmonth(2);
+    //user1.setpay(true);
+    //user1.searchFee(data);
+    //user1.searchTax(data);
+    //user1.whetherpay(data);
+    //user1.getpay();
+  
+    User user2 = new User("Jennie", "JennieB123040089@gmail.com", 1, true);
+    user2.searchFee(data);
+    user2.searchTax(data);
+    user2.whetherpay(data);
+    total.OverdueNotice(user2);
+  
+    user2.setmonth(7);
+    user2.setpay(false);
+    user2.searchFee(data);
+    user2.searchTax(data);
+    user2.whetherpay(data);
+    total.OverdueNotice(user2);
+    }
+}
+
+
